@@ -1,0 +1,17 @@
+[0m[[0minfo[0m] [0mLoading project definition from /home/kamil/simple_sbt_project/project[0m
+[0m[[0minfo[0m] [0mSet current project to SbtStarter (in build file:/home/kamil/simple_sbt_project/)[0m
+[0m[[0minfo[0m] [0mRunning MainAkka [0m
+[0m[[31merror[0m] [0m(run-main-0) java.lang.ArrayIndexOutOfBoundsException: 0[0m
+java.lang.ArrayIndexOutOfBoundsException: 0
+	at MainAkka$.main(MainAkka.scala:67)
+	at MainAkka.main(MainAkka.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+[0m[[31mtrace[0m] [0mStack trace suppressed: run [34mlast compile:run[0m for the full output.[0m
+java.lang.RuntimeException: Nonzero exit code: 1
+	at scala.sys.package$.error(package.scala:27)
+[0m[[31mtrace[0m] [0mStack trace suppressed: run [34mlast compile:run[0m for the full output.[0m
+[0m[[31merror[0m] [0m(compile:[31mrun[0m) Nonzero exit code: 1[0m
+[0m[[31merror[0m] [0mTotal time: 1 s, completed Jan 21, 2015 5:17:05 PM[0m
