@@ -70,12 +70,15 @@ object MainAkka {
   import MainActor._
 
   def main(args: Array[String]): Unit = {
+      if(args.length != 2) {
+        println("Wywołanie run [url] [glebokosc]")
+        return
+      }
       val url = args(0)
       val depth = args(1).toInt
-
-    val sys = ActorSystem("system")
-    val main = sys.actorOf(Props[MainActor], "Main")
-    main ! Init(url, depth)
+      val sys = ActorSystem("system")
+      val main = sys.actorOf(Props[MainActor], "Main")
+      main ! Init(url, depth)
 	}
 
 }
