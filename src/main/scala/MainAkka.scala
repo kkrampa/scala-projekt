@@ -25,11 +25,12 @@ class WorkerActor extends Actor {
   def receive: Receive = {
     case Init(url, depth) =>
       val pattern = "<a href=\"([^\"]*)\"".r
-      //println(url)
-      val links: List[String] = (pattern.findAllIn(Http(url).option(HttpOptions.readTimeout(1000)).asString.body).matchData map (m => m.group(1))).map(
-        x => if (x.contains("http://") || x.contains("https://")) x else url + "/" + x
+
+      try { 
+   	val links: List[String] = (pattern.findAllIn(Http(url).option(HttpOptions.readTimeout(100)).asString.body).matchData map (m => m.group(1))).map(
+        x => if (x.contains("http://") || x.contains("https://")) x else url + (if ((url take (url.length - 1)) != '/')  "/" else "") + x
       ).toList
-      //println("koniec")
+
       if(depth == 0) {
         sender() ! links
       } else {
@@ -37,6 +38,11 @@ class WorkerActor extends Actor {
         val result = Await.result(Future.sequence(futures), timeout.duration).asInstanceOf[List[List[String]]]
         sender() ! (links :: result).flatten
       }
+   } catch {
+	case e: Exception => sender() ! List()
+   }
+      
+      
 
   }
 }
