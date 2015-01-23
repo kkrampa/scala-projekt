@@ -1,10 +1,11 @@
 import java.io.PrintWriter
+import java.net.URL
 
 import akka.actor._
 import akka.util.Timeout
+import org.apache.commons.io.IOUtils
 
 import scala.concurrent.{Await, Future}
-import scalaj.http.{HttpOptions, Http}
 import scala.concurrent.duration._
 import akka.pattern.ask
 
@@ -25,24 +26,23 @@ class WorkerActor extends Actor {
   def receive: Receive = {
     case Init(url, depth) =>
       val pattern = "<a href=\"([^\"]*)\"".r
+      try {
+        val links: List[String] = (pattern.findAllIn(IOUtils.toString(new URL(url))).matchData map (m => m.group(1))).map(
+          x => if (x.contains("http://") || x.contains("https://")) x else url + (if ((url take (url.length - 1)) != "/")  "/" else "") + x
+        ).toList
 
-      try { 
-   	val links: List[String] = (pattern.findAllIn(Http(url).option(HttpOptions.readTimeout(100)).asString.body).matchData map (m => m.group(1))).map(
-        x => if (x.contains("http://") || x.contains("https://")) x else url + (if ((url take (url.length - 1)) != '/')  "/" else "") + x
-      ).toList
-
-      if(depth == 0) {
-        sender() ! links
-      } else {
-        val futures = for(link <- links) yield context.actorOf(Props[WorkerActor]) ? Init(link, depth - 1)
-        val result = Await.result(Future.sequence(futures), timeout.duration).asInstanceOf[List[List[String]]]
-        sender() ! (links :: result).flatten
+        if(depth == 0) {
+          sender() ! links
+        } else {
+          val futures = for(link <- links) yield context.actorOf(Props[WorkerActor]) ? Init(link, depth - 1)
+          val result = Await.result(Future.sequence(futures), timeout.duration).asInstanceOf[List[List[String]]]
+          sender() ! (links :: result).flatten
+        }
+      } catch {
+        case e: Exception => sender() ! List()
       }
-   } catch {
-	case e: Exception => sender() ! List()
-   }
-      
-      
+
+
 
   }
 }
@@ -76,15 +76,15 @@ object MainAkka {
   import MainActor._
 
   def main(args: Array[String]): Unit = {
-      if(args.length != 2) {
-        println("Wywołanie run [url] [glebokosc]")
-        return
-      }
-      val url = args(0)
-      val depth = args(1).toInt
-      val sys = ActorSystem("system")
-      val main = sys.actorOf(Props[MainActor], "Main")
-      main ! Init(url, depth)
-	}
+    if(args.length != 2) {
+      println("Wywołanie run [url] [glebokosc]")
+      return
+    }
+    val url = args(0)
+    val depth = args(1).toInt
+    val sys = ActorSystem("system")
+    val main = sys.actorOf(Props[MainActor], "Main")
+    main ! Init(url, depth)
+  }
 
 }
